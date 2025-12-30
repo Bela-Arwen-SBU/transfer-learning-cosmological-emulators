@@ -1,0 +1,37 @@
+# Data files - stored on HPC, not in git
+*.npy
+*.dat
+*.txt
+*.h5
+*.fits
+
+# Output directories - generated data
+output/
+archived/
+consolidated/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# HPC
+*.out
+*.err
+slurm-*.out
+
+# OS
+.DS_Store
+
+# Keep directory structure
+!.gitkeep
