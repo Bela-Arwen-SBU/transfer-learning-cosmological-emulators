@@ -1,5 +1,6 @@
 # Data files - stored on HPC, not in git
 *.npy
+!configs/**/covtrainT0.npy
 *.dat
 *.txt
 *.h5
