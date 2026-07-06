@@ -1,4 +1,4 @@
-# Experiment: LCDM --> w0wa Transfer Learning (Takahashi)
+# Experiment: LCDM $\rightarrow$ w0wa Transfer Learning (Takahashi)
 
 ## Overview
 Tests whether a pretrained LCDM cosmic shear emulator reduces the training
@@ -14,14 +14,13 @@ Run June and July 2026 on NvWulf.
 | Setting | Value |
 |---------|-------|
 | Base model | LCDM taka run4, N=500k, ResMLP, INT_DIM_RES=362, bs32 |
-| Base checkpoint | `chains/taka_scratch_T500_run4_clip90_intdim362_bs32/models/N500000/` |
 | Target data | w0wa taka run1 (train T500; valid/test T250 cut2p5pct) |
 | Baseline | w0wa taka scratch sweep (same data, same test set) |
 | Training | lr 1e-3, batch 32, 1500 epochs |
 | N_train | 10k, 25k, 50k, 100k |
 | Strategies | none, late_1, early_1, resnet_1/3/12/23/123 |
 
-### Input padding (15 --> 17)
+### Input padding (15 $\rightarrow$ 17)
 The base model takes 15 inputs; w0wa adds w and w0pwa. Model input order
 follows the yaml `ord` list, which appends w, w0pwa at positions 15, 16.
 `pad_lcdm_to_w0wa.py` appends two zero columns to `model.0.weight`, so the
@@ -37,7 +36,7 @@ appended entries replicate it.
 
 ## Results
 
-Median $\Delta \Chi^2$ on the shared test set (n=41,063):
+Median $\Delta \chi^2$ on the shared test set (n=41,063):
 
 | N_train | TL none | late_1 | early_1 | scratch |
 |---------|---------|--------|---------|---------|
@@ -46,10 +45,10 @@ Median $\Delta \Chi^2$ on the shared test set (n=41,063):
 | 50k  | 0.056 | 0.096 | 786 | 0.106 |
 | 100k | 0.042 | 0.076 | 783 | 0.063 |
 
-f($\Delta \Chi^2 > 0.2$), TL none vs scratch: 0.52/0.94 (10k), 0.25/0.63 (25k),
+f($\Delta \chi^2 > 0.2$), TL none vs scratch: 0.52/0.94 (10k), 0.25/0.63 (25k),
 0.20/0.33 (50k), 0.16/0.22 (100k).
 
-Freeze-depth ladder, median $\Delta \Chi^2$:
+Freeze-depth ladder, median $\Delta \chi^2$:
 
 | N_train | none | resnet_1 | resnet_3 | resnet_12 | resnet_23 | resnet_123 |
 |---------|------|----------|----------|-----------|-----------|------------|
