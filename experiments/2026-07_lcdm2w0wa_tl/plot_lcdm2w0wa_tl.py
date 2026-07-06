@@ -1,10 +1,11 @@
 """
 plot_lcdm2w0wa_tl.py
 LCDM->w0wa transfer learning vs w0wa scratch (Taka->Taka, T500 run1).
-Three figures:
+Four figures:
   1. median Delta chi2 vs N_train  (log-log; early_1 control sits at ~800)
   2. f(Delta chi2 > 0.2) vs N_train
-  3. freeze-depth ladder (median, all resnet_* strategies)
+  3. freeze-depth ladder, median (all resnet_* strategies)
+  4. freeze-depth ladder, f(Delta chi2 > 0.2)
 Scratch curve includes its existing 250k/500k points.
 Usage (on NvWulf login node): python plot_lcdm2w0wa_tl.py
 """
@@ -164,5 +165,28 @@ ax.set_title('Freeze-depth ladder — Taka, T500 run1')
 ax.legend(loc='upper right', fontsize=13)
 plt.tight_layout()
 outpath = BASE / 'chains/lcdm2w0wa_tl_ladder_median.pdf'
+plt.savefig(outpath, dpi=300, bbox_inches='tight')
+print(f'Saved: {outpath}')
+
+# ── figure 4: freeze-depth ladder, outlier fraction ───────────────────────────
+fig, ax = plt.subplots(figsize=(10, 6))
+for curve in LADDER_CURVES:
+    ns, _, fracs_02 = load_metrics(curve['dir'], curve['pattern'], N_TRAIN_SIZES)
+    if len(ns) == 0:
+        continue
+    ax.plot(ns / 1e3, fracs_02,
+            label=curve['label'],
+            color=curve['color'], marker=curve['marker'], linestyle=curve['linestyle'],
+            linewidth=2.5, markersize=9)
+
+ax.axhline(0.10, color='gray', linestyle='--', linewidth=1.2, label='f = 0.10')
+style_xaxis(ax)
+ax.set_ylabel(r'$f(\Delta\chi^2 > 0.2)$')
+ax.set_title('Freeze-depth ladder — Taka, T500 run1')
+ax.yaxis.set_major_formatter(plt.FormatStrFormatter('%.2f'))
+ax.yaxis.set_minor_formatter(plt.NullFormatter())
+ax.legend(loc='upper right', fontsize=13)
+plt.tight_layout()
+outpath = BASE / 'chains/lcdm2w0wa_tl_ladder_outlier_frac.pdf'
 plt.savefig(outpath, dpi=300, bbox_inches='tight')
 print(f'Saved: {outpath}')
