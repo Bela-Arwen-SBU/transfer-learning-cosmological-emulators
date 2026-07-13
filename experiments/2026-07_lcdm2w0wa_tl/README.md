@@ -72,6 +72,16 @@ Freeze-depth ladder, median $\Delta \chi^2$:
   independent of N). Caveat: a frozen input layer also cannot absorb the
   normalization rescale, so this number bundles both effects.
 
+### Column-masked input training (running 2026-07-12, results pending)
+Applies the never-freeze-the-input rule surgically to extension transfer:
+`apply_mask_patch.py` adds a MASK_INPUT_COLS gradient hook to
+train_emulator.py that locks the 15 pretrained input columns while the two
+new (w, w0pwa) columns train. Two configs via the colmask sweep scripts:
+early_1 + mask (old embedding preserved exactly, rest of the network trains)
+and late_4 + mask (only the 2 new columns + affine train, 726 parameters).
+Requires weight_decay=0 (pipeline default) so the hook fully freezes the
+locked columns under Adam.
+
 ### Caveats
 - Single seed per configuration.
 - Fixed 1500 epochs at all N (identical in both arms, so the comparison is
