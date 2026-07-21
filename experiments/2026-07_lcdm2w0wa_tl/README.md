@@ -72,15 +72,38 @@ Freeze-depth ladder, median $\Delta \chi^2$:
   independent of N). Caveat: a frozen input layer also cannot absorb the
   normalization rescale, so this number bundles both effects.
 
-### Column-masked input training (running 2026-07-12, results pending)
+### Column-masked input training
 Applies the never-freeze-the-input rule surgically to extension transfer:
 `apply_mask_patch.py` adds a MASK_INPUT_COLS gradient hook to
 train_emulator.py that locks the 15 pretrained input columns while the two
-new (w, w0pwa) columns train. Two configs via the colmask sweep scripts:
-early_1 + mask (old embedding preserved exactly, rest of the network trains)
-and late_4 + mask (only the 2 new columns + affine train, 726 parameters).
-Requires weight_decay=0 (pipeline default) so the hook fully freezes the
-locked columns under Adam.
+new (w, w0pwa) columns train. Requires weight_decay=0 (pipeline default) so
+the hook fully freezes the locked columns under Adam.
+
+early_1 + mask (locked LCDM embedding, ResBlocks/output train), median Δχ²:
+
+| N_train | colmask | TL none | scratch |
+|---------|---------|---------|---------|
+| 10k  | **0.184** | 0.217 | 0.977 |
+| 25k  | 0.087 | 0.073 | 0.303 |
+| 50k  | 0.064 | 0.056 | 0.106 |
+| 100k | 0.052 | 0.042 | 0.063 |
+
+Best strategy tested at N=10k, then trails full fine-tuning by ~20-25%.
+Reading: the locked embedding acts as a regularizer at small N (protects
+pretrained structure from being scrambled by scarce data) and becomes a
+mild constraint once data is plentiful. Interactions between old and new
+parameters form fine in the trainable ResBlocks (compare the blind control
+at ~800).
+
+late_4 + mask (only the 2 new columns + affine train, 726 parameters): first
+run gave median ~7e4 at all N. That is the normalization confound rather
+than physics: TL-mode inputs arrive 5x smaller than in base training, and
+with everything locked nothing can absorb the rescale, so the frozen network
+sees mis-scaled inputs everywhere. Fix: rescale_padded_ckpt.py multiplies
+the 15 locked columns by 5 so the frozen machine reproduces base behavior
+exactly under TL normalization. Rescaled reruns of late_4 and early_1 in
+progress (the early_1 rerun also tests how much of its ~20% large-N deficit
+was the same rescale burden).
 
 ### Caveats
 - Single seed per configuration.
